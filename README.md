@@ -11,7 +11,7 @@
 - Create service account in GCP 
 - Create json key of that service account and place in this directory
 - open ```backend/credentails.py```, replace your filename with your "KEY_NAME"
-- uncomment this line\
+- uncomment this line if it commented\
     ```#os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.path.abspath(f'../{filename}')```
 
 ### Library setup
