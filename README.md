@@ -5,7 +5,7 @@
 ### Service account setup
 - Create service account in GCP 
 - Create json key of that service account and place in this directory
-- open backend/app.py, replace your filename with your "KEY_NAME"
+- open backend/credentails.py, replace your filename with your "KEY_NAME"
 - uncomment this line
     - #os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.path.abspath(f'../{filename}')
 
