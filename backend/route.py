@@ -1,9 +1,11 @@
+from credentials import *
 from flask import Flask, render_template, redirect, jsonify
 from google.cloud import translate_v2 as translate
 from google.cloud import texttospeech
 from google.cloud import storage
 from google.cloud import firestore
 from newspaper import Article
+
 
 app = Flask(__name__)
 #change according to your project id
