@@ -10,8 +10,8 @@
     - #os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.path.abspath(f'../{filename}')
 
 ### Library setup
-- Install all library in requirement.txt
-    pip install -r requirement.txt
+- Install all library in requirement.txt\
+    ```pip install -r requirement.txt```
 
 ### variable setup
 - Go to app.py, Change these variable according to your project
