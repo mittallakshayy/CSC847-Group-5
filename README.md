@@ -2,6 +2,11 @@
 
 ## Backend SETUP
 
+### Enable all the require API and product in GCP
+- Google Cloud Translation
+- Google Cloud text-to-speech
+- Firestore
+- Google storage bucket
 ### Service account setup
 - Create service account in GCP 
 - Create json key of that service account and place in this directory
