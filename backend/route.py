@@ -22,14 +22,16 @@ def index():
     article.download()
     article.parse()
     original_text = article.text
-    original_text = original_text.replace("\n","")
+    original_text = original_text.replace("\n"," ")
     
     translate_client = translate.Client()
-    result = translate_client.translate(article.text, target_language='fr')
+    result = translate_client.translate(original_text, target_language='fr')
     translated_text = result['translatedText']
+
+    
     #doing texttospeech on translated text
     texttospeech_client = texttospeech.TextToSpeechClient()
-    synthesis_input = texttospeech.SynthesisInput(text=translated_text[:1250])
+    synthesis_input = texttospeech.SynthesisInput(text=translated_text)
     voice = texttospeech.VoiceSelectionParams(
         language_code="fr-FR", ssml_gender=texttospeech.SsmlVoiceGender.MALE
     )
@@ -50,12 +52,15 @@ def index():
     
     db.collection(FIRESTORE_COLLECTION).document(f'{article.title}').set({
     u'original_text': original_text,
-    u'translated_text': result['translatedText'],
+    u'translated_text': str(translated_text),
     u'audio_filename': filename
     },merge=True)
+    """
+    # For getting data from firestore
     
     query = db.collection(u'articles').stream()
     for q in query:
-        print(q.to_dict())
-    return "success",200
+        x = q.to_dict()
+    """
+    return "SUCCESS",200
 
