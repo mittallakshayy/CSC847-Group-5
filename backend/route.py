@@ -6,9 +6,12 @@ from google.cloud import firestore
 from newspaper import Article
 
 app = Flask(__name__)
-
-db = firestore.Client(project='team5project')
+#change according to your project id
+PROJECT_ID = 'team5project'
 BUCKET_NAME = 'translate_speech'
+FIRESTORE_COLLECTION = 'articles'
+
+db = firestore.Client(project=PROJECT_ID)
 
 @app.route('/')
 def index():
@@ -45,7 +48,7 @@ def index():
     blob = bucket.blob(filename)
     blob.upload_from_string(audio, content_type='audio/mp3')
     
-    db.collection(u'articles').document(f'{article.title}').set({
+    db.collection(FIRESTORE_COLLECTION).document(f'{article.title}').set({
     u'original_text': original_text,
     u'translated_text': result['translatedText'],
     u'audio_filename': filename
