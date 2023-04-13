@@ -34,18 +34,18 @@ translate_client = translate.Client()
 
 # supported languages and their codes
 dict = {
-    "english": {"language": "English", "code": "en", "code_region": "en-US"},
-    "german": {"language":"", "code": "de", "code_region": "de-DE"},
-    "spanish": {"language":"", "code": "es", "code_region": "es-ES"},
-    "franch": {"language":"", "code": "fr", "code_region": "fr-FR"},
-    "italian": {"language":"", "code": "it", "code_region": "it-IT"},
-    "dutch": {"language":"", "code": "nl", "code_region": "nl-NL"},
-    "portuguese": {"language":"", "code": "pt", "code_region": "pt-PT"},
-    "swedish": {"language":"", "code": "sv", "code_region": "sv-SE"},
-    "danish": {"language":"", "code": "da", "code_region": "da-DK"},
-    "norwegian": {"language":"", "code": "no", "code_region": "nb-NO"},
-    "finnish": {"language":"", "code": "fi", "code_region": "fi-FI"},
-    "icelandic": {"language":"", "code": "is", "code_region": "is-IS"},
+    "english": {"language": "english", "code": "en", "code_region": "en-US"},
+    "german": {"language":"german", "code": "de", "code_region": "de-DE"},
+    "spanish": {"language":"spanish", "code": "es", "code_region": "es-ES"},
+    "franch": {"language":"franch", "code": "fr", "code_region": "fr-FR"},
+    "italian": {"language":"italian", "code": "it", "code_region": "it-IT"},
+    "dutch": {"language":"dutch", "code": "nl", "code_region": "nl-NL"},
+    "portuguese": {"language":"portuguese", "code": "pt", "code_region": "pt-PT"},
+    "swedish": {"language":"swedish", "code": "sv", "code_region": "sv-SE"},
+    "danish": {"language":"danish", "code": "da", "code_region": "da-DK"},
+    "norwegian": {"language":"norwegian", "code": "no", "code_region": "nb-NO"},
+    "finnish": {"language":"finnish", "code": "fi", "code_region": "fi-FI"},
+    "icelandic": {"language":"icelandic", "code": "is", "code_region": "is-IS"},
 }
 
 # ================================================================================================
@@ -57,11 +57,18 @@ def init():
     return
     
 
-
+"""
+this method recieve url, language from frontend.
+download news from url, translate it, doing text to speech
+and upload to google cloud storage and firestore
+"""
 @app.route("/upload", methods=["POST"])
 def upload():
+    #get url, target-language from frontend
     url = request.form['url']
     language = request.form['language'].lower()
+    
+    #scraping news from url
     article = Article(url)
     article.download()
     article.parse()
@@ -73,14 +80,13 @@ def upload():
     translated_text = result["translatedText"]
     # doing texttospeech on translated text
     synthesis_input = texttospeech.SynthesisInput(text=translated_text[:4800])
-
-    # here we are using french voice. later we will change this to user input language
     voice = texttospeech.VoiceSelectionParams(
         language_code=dict[language]["code_region"], ssml_gender=texttospeech.SsmlVoiceGender.MALE
     )
     audio_config = texttospeech.AudioConfig(
         audio_encoding=texttospeech.AudioEncoding.MP3
     )
+    
     response = texttospeech_client.synthesize_speech(
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
@@ -98,7 +104,6 @@ def upload():
         blob.upload_from_string(img_url.read(), content_type="image/jpg")
         
     # add data to firestore
-    # here we are adding original text, translated text, audio filename and audio url to firestore, we can add more data if needed
     db.collection(FIRESTORE_COLLECTION).document(f"{article.title}").set(
         {
             "title": article.title,
@@ -114,6 +119,7 @@ def upload():
         },
         merge=True,
     )
+    # return data to frontend
     doc_ref = db.collection("articles").document(article.title)
     doc = doc_ref.get()
     if doc.exists:
@@ -121,12 +127,18 @@ def upload():
     else:
         return "Not Found", 404
 
-
+"""
+this method translate and doing text-to-speech on language that not exist in firestore
+it will upload text-to-speech to google cloud storage
+also update the firestore with new translated language
+"""
 @app.route("/add_language", methods=["POST"])
 def add_language():
+    #get title, target-language from frontend
     title = request.form['title']
     language = request.form['language'].lower()
     
+    #get document from firestore
     doc_ref = db.collection("articles").document(title)
     doc = doc_ref.get()
     if doc.exists:
@@ -134,21 +146,22 @@ def add_language():
     else:
         return "Not Found", 404
     
+    #declare variable for translation and text-to-speech
     original_text = exist_doc.json['original_text']
     title = exist_doc.json['title']
+    
     # doing translation on original text
     result = translate_client.translate(original_text, target_language=dict[language]["code"])
     translated_text = result["translatedText"]
     # doing texttospeech on translated text
     synthesis_input = texttospeech.SynthesisInput(text=translated_text[:4800])
-
-    # here we are using french voice. later we will change this to user input language
     voice = texttospeech.VoiceSelectionParams(
         language_code=dict[language]["code_region"], ssml_gender=texttospeech.SsmlVoiceGender.MALE
     )
     audio_config = texttospeech.AudioConfig(
         audio_encoding=texttospeech.AudioEncoding.MP3
     )
+    
     response = texttospeech_client.synthesize_speech(
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
@@ -159,15 +172,14 @@ def add_language():
     blob = bucket.blob(filename)
     blob.upload_from_string(audio, content_type="audio/mp3")
         
-    # add data to firestore
-    # here we are adding original text, translated text, audio filename and audio url to firestore, we can add more data if needed
+    # add new translated text, audio name, audio url to firestore
     doc_ref.update(
         {
             f"translated_text_{language}": str(translated_text),
             f"audio_filename_{language}": filename,
             f"audio_url_{language}": f"https://storage.googleapis.com/{BUCKET_NAME}/{filename}",
         })
-    doc_ref = db.collection("articles").document(title)
+    # return data to frontend
     doc = doc_ref.get()
     if doc.exists:
         return jsonify(doc.to_dict()), 200
