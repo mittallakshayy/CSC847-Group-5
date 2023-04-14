@@ -33,10 +33,11 @@
     This route use to get specific document from firestore\
 
 ### /index/ Method = [GET]
-- ```ex: localhost:8000/index/```\
-    This route use to get all document from firestore
-- ```optional```
-    ```/index/<category> Method = [GET]```
+- ```ex: localhost:8000/index/```
+    This route use to get all document from firestore\
+    \
+- ```optional```\
+    ### ```/index/<category> Method = [GET]```
         - param:
             - category\
     This route use to get all document from firestore that have specific category\
