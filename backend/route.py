@@ -141,7 +141,7 @@ this method translate and doing text-to-speech on language that not exist in fir
 it will upload text-to-speech to google cloud storage
 also update the firestore with new translated language
 """
-@app.route("/add_language", methods=["POST"])
+@app.route("/add_language/", methods=["POST"])
 def add_language():
     #get title, target-language from frontend
     title = request.form['title']
@@ -235,14 +235,14 @@ def get_index(category=None):
     return document, 200
 
 #this route is for getting supported language for translation in this app
-@app.route("/get_language")
+@app.route("/get_language/")
 def get_language():
     supported_laguages = []
     for key, value in dict.items():
         supported_laguages.append(key)
     return jsonify(supported_laguages), 200
 
-@app.route("/get_category")
+@app.route("/get_category/")
 def get_category():
     doc_ref = db.collection("articles")
     field_name = "category"
