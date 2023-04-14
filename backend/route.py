@@ -19,7 +19,7 @@ FIRESTORE_COLLECTION = "articles"
 
 # ================================================================================================
 
-
+#url = "https://www.cnn.com/2023/03/28/tech/elon-musk-verified-only-for-you-feed"
 # firestore client
 db = firestore.Client(project=PROJECT_ID)
 # google cloud storage client and bucket
@@ -37,7 +37,7 @@ dict = {
     "english": {"language": "english", "code": "en", "code_region": "en-US"},
     "german": {"language":"german", "code": "de", "code_region": "de-DE"},
     "spanish": {"language":"spanish", "code": "es", "code_region": "es-ES"},
-    "franch": {"language":"franch", "code": "fr", "code_region": "fr-FR"},
+    "french": {"language":"french", "code": "fr", "code_region": "fr-FR"},
     "italian": {"language":"italian", "code": "it", "code_region": "it-IT"},
     "dutch": {"language":"dutch", "code": "nl", "code_region": "nl-NL"},
     "portuguese": {"language":"portuguese", "code": "pt", "code_region": "pt-PT"},
@@ -62,7 +62,7 @@ this method recieve url, language from frontend.
 download news from url, translate it, doing text to speech
 and upload to google cloud storage and firestore
 """
-@app.route("/upload", methods=["POST"])
+@app.route("/upload/", methods=["POST"])
 def upload():
     #get url, target-language from frontend
     url = request.form['url']
@@ -103,6 +103,14 @@ def upload():
         blob = bucket.blob(imagename)
         blob.upload_from_string(img_url.read(), content_type="image/jpg")
         
+    #handle category
+    split_url = url.split('/')
+    try:
+        int(split_url[3])
+        news_category = split_url[6]
+    except:
+        news_category = split_url[3]
+        
     # add data to firestore
     db.collection(FIRESTORE_COLLECTION).document(f"{article.title}").set(
         {
@@ -115,7 +123,8 @@ def upload():
             f"audio_url_{language}": f"https://storage.googleapis.com/{BUCKET_NAME}/{filename}",
             "image_filename": imagename,
             "image_url": f"https://storage.googleapis.com/{BUCKET_NAME}/{imagename}",
-            "category": url.split('/')[-2]
+            "category": news_category,
+            "url": url,
         },
         merge=True,
     )
@@ -212,15 +221,56 @@ def get_article(title):
     else:
         return "Not Found", 404
 
-
-
 # this route is for serving index page
-@app.route("/index")
-def get_index():
+@app.route("/index/", defaults={'category': None})
+@app.route("/index/<category>")
+def get_index(category=None):
+    if category:
+        doc_ref = db.collection("articles").where("category", "==", category).stream()
+    else:
+        doc_ref = db.collection("articles").stream()
+    document = []
+    for doc in doc_ref:
+        document.append(doc.to_dict())
+    return document, 200
+
+#this route is for getting supported language for translation in this app
+@app.route("/get_language")
+def get_language():
+    supported_laguages = []
+    for key, value in dict.items():
+        supported_laguages.append(key)
+    return jsonify(supported_laguages), 200
+
+@app.route("/get_category")
+def get_category():
+    doc_ref = db.collection("articles")
+    field_name = "category"
+    
+    distinct_values = doc_ref.order_by(field_name).select([field_name]).stream()
+    distinct_categories = set()
+    for doc in distinct_values:
+        distinct_categories.add(doc.get(field_name))
+    print(distinct_categories)
+    return jsonify(list(distinct_categories)), 200
+
+@app.route("/delete_article/<title>")
+def delete_article(title):
+    doc_ref = db.collection("articles").document(title)
+    doc = doc_ref.get()
+    doc = doc.to_dict()
+    for key, value in doc.items():
+        if key.startswith("audio_filename") or key == "image_filename":
+            blob = bucket.blob(value)
+            blob.delete()
+    doc_ref = db.collection("articles").document(title)
+    doc_ref.delete()
+    
     doc_ref = db.collection("articles").stream()
     document = []
     for doc in doc_ref:
         document.append(doc.to_dict())
     return document, 200
+
 
 
