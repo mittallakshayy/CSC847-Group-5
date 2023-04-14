@@ -6,8 +6,11 @@ from google.cloud import storage
 from google.cloud import firestore
 from newspaper import Article
 import urllib.request
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # ================================================================================================
 #                                change according to your project id
