@@ -1,4 +1,8 @@
 import os
+import configparser
 
-filename = "team5project-e18047e95931.json"
+key_praser = configparser.ConfigParser()
+key_praser.read("credentials.ini")
+
+filename = key_praser.get("credentials", "key_path")
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.path.abspath(f'../{filename}')
