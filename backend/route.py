@@ -4,6 +4,8 @@ from google.cloud import translate_v2 as translate
 from google.cloud import texttospeech
 from google.cloud import storage
 from google.cloud import firestore
+from google.cloud import language_v1
+
 from newspaper import Article
 import urllib.request
 from flask_cors import CORS
@@ -33,8 +35,8 @@ bucket = storage_client.bucket(BUCKET_NAME)
 texttospeech_client = texttospeech.TextToSpeechClient()
 # google cloud translate client
 translate_client = translate.Client()
-
-
+# google cloud natural language client
+language_client = language_v1.LanguageServiceClient()
 # supported languages and their codes
 dict = {
     "english": {"language": "english", "code": "en", "code_region": "en-US"},
@@ -105,7 +107,7 @@ def upload():
     with urllib.request.urlopen(article.top_image) as img_url:
         blob = bucket.blob(imagename)
         blob.upload_from_string(img_url.read(), content_type="image/jpg")
-        
+    """
     #handle category
     split_url = url.split('/')
     try:
@@ -113,7 +115,14 @@ def upload():
         news_category = split_url[6]
     except:
         news_category = split_url[3]
-        
+    """
+    document = language_v1.Document(
+        content=original_text, type=language_v1.Document.Type.PLAIN_TEXT
+    )
+
+    response = language_client.classify_text(request={"document": document})
+    category = response.categories[1].name.split('/')[1]
+    
     # add data to firestore
     db.collection(FIRESTORE_COLLECTION).document(f"{article.title}").set(
         {
@@ -126,7 +135,7 @@ def upload():
             f"audio_url_{language}": f"https://storage.googleapis.com/{BUCKET_NAME}/{filename}",
             "image_filename": imagename,
             "image_url": f"https://storage.googleapis.com/{BUCKET_NAME}/{imagename}",
-            "category": news_category,
+            "category": category,
             "url": url,
         },
         merge=True,
