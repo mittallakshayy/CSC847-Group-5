@@ -8,7 +8,7 @@ feedfinder2==0.0.4
 feedparser==6.0.10
 filelock==3.11.0
 Flask==2.2.3
-Flask-Cors==3.0.11
+Flask-Cors
 google-api-core==2.11.0
 google-auth==2.17.2
 google-cloud-core==2.3.2
