@@ -121,7 +121,10 @@ def upload():
     )
 
     response = language_client.classify_text(request={"document": document})
-    category = response.categories[1].name.split('/')[1]
+    categories = []
+    for category in response.categories:
+        category = category.name.replace("/", "")
+        categories.append(category)
     
     # add data to firestore
     db.collection(FIRESTORE_COLLECTION).document(f"{article.title}").set(
@@ -135,7 +138,7 @@ def upload():
             f"audio_url_{language}": f"https://storage.googleapis.com/{BUCKET_NAME}/{filename}",
             "image_filename": imagename,
             "image_url": f"https://storage.googleapis.com/{BUCKET_NAME}/{imagename}",
-            "category": category,
+            "category": categories,
             "url": url,
         },
         merge=True,
@@ -238,7 +241,7 @@ def get_article(title):
 @app.route("/index/<category>")
 def get_index(category=None):
     if category:
-        doc_ref = db.collection("articles").where("category", "==", category).stream()
+        doc_ref = db.collection("articles").where('category', 'array_contains', category).stream()
     else:
         doc_ref = db.collection("articles").stream()
     document = []
@@ -262,8 +265,9 @@ def get_category():
     distinct_values = doc_ref.order_by(field_name).select([field_name]).stream()
     distinct_categories = set()
     for doc in distinct_values:
-        distinct_categories.add(doc.get(field_name))
-    print(distinct_categories)
+        categories = doc.get(field_name)
+        for category in categories:
+            distinct_categories.add(category)
     return jsonify(list(distinct_categories)), 200
 
 @app.route("/delete_article/<title>")
@@ -285,4 +289,4 @@ def delete_article(title):
     return document, 200
 
 
-
+    
