@@ -49,13 +49,6 @@
     This route use to get all document from firestore that have specific category
 ---
 
-### /index/<category> Method = [GET]
-- ```ex: localhost:8000/index/tech```
-    - param:
-        - category\
-    This route use to get all document from firestore that have specific category
----
-
 ### /get_language/ Method = [GET]
 - ```ex: localhost:8000/get_language/```\
     This route use to get all language supported by backend
