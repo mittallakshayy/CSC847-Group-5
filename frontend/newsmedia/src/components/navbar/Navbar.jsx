@@ -75,7 +75,7 @@ export default function SearchAppBar(props) {
             const response = await axios({
                 method: 'post',
                 url: `${process.env.REACT_APP_URI}/upload`,
-                body: form,
+                data: form,
                 headers: {
                     'Content-Type': `multipart/form-data; boundary=${form._boundary}`,
                 },
