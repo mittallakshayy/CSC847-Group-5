@@ -61,7 +61,9 @@ dict = {
 def init():
     return
     
-
+@app.route("/")
+def hello():
+    return "HELLO"
 """
 this method recieve url, language from frontend.
 download news from url, translate it, doing text to speech
@@ -107,21 +109,17 @@ def upload():
     with urllib.request.urlopen(article.top_image) as img_url:
         blob = bucket.blob(imagename)
         blob.upload_from_string(img_url.read(), content_type="image/jpg")
-    """
-    #handle category
-    split_url = url.split('/')
-    try:
-        int(split_url[3])
-        news_category = split_url[6]
-    except:
-        news_category = split_url[3]
-    """
+
     document = language_v1.Document(
         content=original_text, type=language_v1.Document.Type.PLAIN_TEXT
     )
 
     response = language_client.classify_text(request={"document": document})
-    category = response.categories[1].name.split('/')[1]
+    categories = []
+    for category in response.categories:
+        category = category.name
+        category = category.split("/")
+        categories.append(category[-1])
     
     # add data to firestore
     db.collection(FIRESTORE_COLLECTION).document(f"{article.title}").set(
@@ -135,7 +133,7 @@ def upload():
             f"audio_url_{language}": f"https://storage.googleapis.com/{BUCKET_NAME}/{filename}",
             "image_filename": imagename,
             "image_url": f"https://storage.googleapis.com/{BUCKET_NAME}/{imagename}",
-            "category": category,
+            "category": categories,
             "url": url,
         },
         merge=True,

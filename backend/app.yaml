@@ -1,0 +1,2 @@
+runtime: python310  # Replace with your desired Python version (e.g., python38, python39)
+entrypoint: gunicorn -b :$PORT app:app
