@@ -235,13 +235,18 @@ def get_article(title):
 @app.route("/index/", defaults={'category': None})
 @app.route("/index/<category>")
 def get_index(category=None):
-    if category:
-        doc_ref = db.collection("articles").where("category", "==", category).stream()
-    else:
-        doc_ref = db.collection("articles").stream()
+    doc_ref = db.collection("articles").stream()
     document = []
-    for doc in doc_ref:
-        document.append(doc.to_dict())
+    if category:
+        for doc in doc_ref:
+            doc_temp = doc.to_dict()
+            for categories in doc_temp["category"]:
+                if category.lower() in categories.lower():
+                    document.append(doc.to_dict())
+                    break
+    else:
+        for doc in doc_ref:
+            document.append(doc.to_dict())
     return document, 200
 
 #this route is for getting supported language for translation in this app
@@ -260,8 +265,8 @@ def get_category():
     distinct_values = doc_ref.order_by(field_name).select([field_name]).stream()
     distinct_categories = set()
     for doc in distinct_values:
-        distinct_categories.add(doc.get(field_name))
-    print(distinct_categories)
+        for category in doc.to_dict()["category"]:
+            distinct_categories.add(category)
     return jsonify(list(distinct_categories)), 200
 
 @app.route("/delete_article/<title>")
