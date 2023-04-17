@@ -81,8 +81,9 @@ export default function SearchAppBar(props) {
                 },
             });
             handleClose();
-          
             props.setToggle(!props.toggle);
+            setLanguage('');
+            setUrl('');
     }catch(err){
         console.log(err);
     }
