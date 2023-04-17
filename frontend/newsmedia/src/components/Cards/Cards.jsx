@@ -19,7 +19,8 @@ export default function MultiActionAreaCard(props) {
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
-          <Chip label={props.article.category} />
+            {props.article.category.map((categories) => (<Chip style={{marginRight:"7px",marginBottom:"5px"}}label={categories} />))}
+          
           </Typography>
           <Typography variant="body2" color="text.secondary">
            <b>{props.article.title}</b>
