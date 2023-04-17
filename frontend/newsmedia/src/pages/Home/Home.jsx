@@ -5,7 +5,7 @@ import axios from 'axios';
 import Card from '../../components/Cards/Cards';
 import Typography from '@mui/material/Typography';
 
-const Home = () =>{
+const Home = (props) =>{
     
   const [articles, setArticles] = useState([]);
   const BASE = process.env.REACT_APP_URI;
@@ -23,7 +23,7 @@ const Home = () =>{
  
   useEffect( () => {
    getArticles();
-  }, []);
+  }, [props.toggle]);
 
   return (
     <div style ={{marginTop: "100px"}}>

@@ -3,6 +3,7 @@ import './App.css';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from './components/navbar/Navbar.jsx';
 import Home from './pages/Home/Home.jsx';
+import Article from './pages/Home/Article';
 
 
 function App() {
@@ -12,10 +13,11 @@ function App() {
  
 
   return (<>
-    <Navbar setToggle={setToggle}></Navbar>
+    <Navbar setToggle={setToggle} toggle={toggle}></Navbar>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home setToggle={setToggle} />}></Route>
+        <Route path="/" element={<Home setToggle={setToggle} toggle={toggle} />}></Route>
+        <Route path="/article/:title" element={<Article/> }> </Route>
         </Routes>
     </BrowserRouter>
     </>

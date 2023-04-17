@@ -34,6 +34,9 @@ export default function MultiActionAreaCard(props) {
         <Button size="small" color="primary">
           Learn More
         </Button>
+        <Button size="small" color="primary">
+         Delete
+        </Button>
       </CardActions>
     </Card>
   );
