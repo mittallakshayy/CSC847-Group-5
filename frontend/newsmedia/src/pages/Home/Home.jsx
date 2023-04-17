@@ -26,7 +26,7 @@ const Home = (props) =>{
   }, [props.toggle]);
 
   return (
-    <div style ={{marginTop: "100px"}}>
+    <div style ={{marginTop: "50px"}}>
          <Typography variant="h3" gutterBottom style={{display:"flex",justifyContent:"center",marginBottom:"50px"}}>
         Trending Now
       </Typography>
@@ -34,7 +34,7 @@ const Home = (props) =>{
       <Grid container columnSpacing={4}  rowSpacing={4}>
       {articles.map(article => (
       <Grid key= {article.title}item xs={12} sm ={6} md = {4} lg ={3} xl = {3}>
-        <Card article={article}></Card>
+        <Card toggle={props.toggle} setToggle={props.setToggle} article={article}></Card>
     
   </Grid>))}
 

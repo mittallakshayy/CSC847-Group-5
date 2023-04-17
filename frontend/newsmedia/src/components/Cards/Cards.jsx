@@ -6,8 +6,22 @@ import Typography from '@mui/material/Typography';
 import { Button, CardActionArea, CardActions } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
+import {Link} from 'react-router-dom';
+import axios from 'axios';
 
 export default function MultiActionAreaCard(props) {
+
+  const handleDelete = async() => {
+    try{
+   
+        const response = await axios.get(`${process.env.REACT_APP_URI}delete_article/${props.article.title}`);
+        
+        props.setToggle(!props.toggle);
+        } catch (err){
+          console.log(err);
+        }
+
+  }
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardActionArea>
@@ -19,7 +33,7 @@ export default function MultiActionAreaCard(props) {
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
-            {props.article.category.map((categories) => (<Chip style={{marginRight:"7px",marginBottom:"5px"}}label={categories} />))}
+            {props.article.category.map((categories) => (<Chip key={categories}style={{marginRight:"7px",marginBottom:"5px"}}label={categories} />))}
           
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -32,10 +46,11 @@ export default function MultiActionAreaCard(props) {
       </CardActionArea>
       <Divider></Divider>
       <CardActions>
-        <Button size="small" color="primary">
+        <Link to={`/article/${props.article.title}`}> <Button size="small" color="primary" >
           Learn More
-        </Button>
-        <Button size="small" color="primary">
+        </Button></Link>
+      
+        <Button size="small" color="primary" onClick={handleDelete}>
          Delete
         </Button>
       </CardActions>

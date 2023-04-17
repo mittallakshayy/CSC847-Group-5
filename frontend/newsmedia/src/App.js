@@ -13,8 +13,9 @@ function App() {
  
 
   return (<>
-    <Navbar setToggle={setToggle} toggle={toggle}></Navbar>
+    
     <BrowserRouter>
+    <Navbar setToggle={setToggle} toggle={toggle}></Navbar>
       <Routes>
         <Route path="/" element={<Home setToggle={setToggle} toggle={toggle} />}></Route>
         <Route path="/article/:title" element={<Article/> }> </Route>

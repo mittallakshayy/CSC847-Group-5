@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
+import {Link} from 'react-router-dom';
 
 
 
@@ -113,6 +114,7 @@ export default function SearchAppBar(props) {
           >
              NewsMedia
           </Typography>
+          <Link to='/' ><Button variant="outlined"  style= {{color:"white"}}>Home</Button></Link>
           <Dropdown setLanguage={setLanguage} language={language}></Dropdown>
           <Search>
             <SearchIconWrapper>
