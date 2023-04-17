@@ -61,7 +61,9 @@ dict = {
 def init():
     return
     
-
+@app.route("/")
+def hello():
+    return "HELLO"
 """
 this method recieve url, language from frontend.
 download news from url, translate it, doing text to speech
@@ -83,6 +85,9 @@ def upload():
     # doing translation on original text
     result = translate_client.translate(original_text, target_language=dict[language]["code"])
     translated_text = result["translatedText"]
+    if language == "french":
+        translated_text = translated_text.replace("&#39;", "'")
+        translated_text = translated_text.replace("&quot;",'"')
     # doing texttospeech on translated text
     synthesis_input = texttospeech.SynthesisInput(text=translated_text[:4800])
     voice = texttospeech.VoiceSelectionParams(
@@ -107,15 +112,7 @@ def upload():
     with urllib.request.urlopen(article.top_image) as img_url:
         blob = bucket.blob(imagename)
         blob.upload_from_string(img_url.read(), content_type="image/jpg")
-    """
-    #handle category
-    split_url = url.split('/')
-    try:
-        int(split_url[3])
-        news_category = split_url[6]
-    except:
-        news_category = split_url[3]
-    """
+
     document = language_v1.Document(
         content=original_text, type=language_v1.Document.Type.PLAIN_TEXT
     )
@@ -123,8 +120,9 @@ def upload():
     response = language_client.classify_text(request={"document": document})
     categories = []
     for category in response.categories:
-        category = category.name.replace("/", "")
-        categories.append(category)
+        category = category.name
+        category = category.split("/")
+        categories.append(category[-1])
     
     # add data to firestore
     db.collection(FIRESTORE_COLLECTION).document(f"{article.title}").set(
@@ -240,13 +238,18 @@ def get_article(title):
 @app.route("/index/", defaults={'category': None})
 @app.route("/index/<category>")
 def get_index(category=None):
-    if category:
-        doc_ref = db.collection("articles").where('category', 'array_contains', category).stream()
-    else:
-        doc_ref = db.collection("articles").stream()
+    doc_ref = db.collection("articles").stream()
     document = []
-    for doc in doc_ref:
-        document.append(doc.to_dict())
+    if category:
+        for doc in doc_ref:
+            doc_temp = doc.to_dict()
+            for categories in doc_temp["category"]:
+                if category.lower() in categories.lower():
+                    document.append(doc.to_dict())
+                    break
+    else:
+        for doc in doc_ref:
+            document.append(doc.to_dict())
     return document, 200
 
 #this route is for getting supported language for translation in this app
@@ -265,8 +268,7 @@ def get_category():
     distinct_values = doc_ref.order_by(field_name).select([field_name]).stream()
     distinct_categories = set()
     for doc in distinct_values:
-        categories = doc.get(field_name)
-        for category in categories:
+        for category in doc.to_dict()["category"]:
             distinct_categories.add(category)
     return jsonify(list(distinct_categories)), 200
 
@@ -289,4 +291,4 @@ def delete_article(title):
     return document, 200
 
 
-    
+
