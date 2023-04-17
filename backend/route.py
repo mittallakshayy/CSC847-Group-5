@@ -88,8 +88,21 @@ def upload():
     if language == "french":
         translated_text = translated_text.replace("&#39;", "'")
         translated_text = translated_text.replace("&quot;",'"')
+
+    #find index where byte used = 4950
+    index = 0
+    byte_count = 0
+    if len(translated_text.encode('utf-8'))<4950:
+        synthesis_input = texttospeech.SynthesisInput(text=translated_text)
+    else:    
+        for i, c in enumerate(translated_text):
+            byte_count += len(c.encode('utf-8'))
+            if byte_count >= 4950:
+                index = i
+                break
+        synthesis_input = texttospeech.SynthesisInput(text=translated_text[:index])
+    
     # doing texttospeech on translated text
-    synthesis_input = texttospeech.SynthesisInput(text=translated_text[:4800])
     voice = texttospeech.VoiceSelectionParams(
         language_code=dict[language]["code_region"], ssml_gender=texttospeech.SsmlVoiceGender.MALE
     )
@@ -175,8 +188,22 @@ def add_language():
     # doing translation on original text
     result = translate_client.translate(original_text, target_language=dict[language]["code"])
     translated_text = result["translatedText"]
+
+    #find index where byte used = 4950
+    index = 0
+    byte_count = 0
+    if len(translated_text.encode('utf-8'))<4950:
+        synthesis_input = texttospeech.SynthesisInput(text=translated_text)
+    else:    
+        for i, c in enumerate(translated_text):
+            byte_count += len(c.encode('utf-8'))
+            if byte_count >= 4950:
+                index = i
+                break
+        synthesis_input = texttospeech.SynthesisInput(text=translated_text[:index])
+
     # doing texttospeech on translated text
-    synthesis_input = texttospeech.SynthesisInput(text=translated_text[:4800])
+    
     voice = texttospeech.VoiceSelectionParams(
         language_code=dict[language]["code_region"], ssml_gender=texttospeech.SsmlVoiceGender.MALE
     )
