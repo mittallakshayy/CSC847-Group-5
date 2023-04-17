@@ -8,6 +8,9 @@ import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import {Link} from 'react-router-dom';
 import axios from 'axios';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 
 export default function MultiActionAreaCard(props) {
 
@@ -50,9 +53,10 @@ export default function MultiActionAreaCard(props) {
           Learn More
         </Button></Link>
       
-        <Button size="small" color="primary" onClick={handleDelete}>
-         Delete
-        </Button>
+        
+        <IconButton aria-label="delete" size="small"  onClick={handleDelete}>
+        <DeleteIcon fontSize="small" />
+      </IconButton>
       </CardActions>
     </Card>
   );

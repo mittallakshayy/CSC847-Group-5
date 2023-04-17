@@ -75,7 +75,7 @@ export default function SearchAppBar(props) {
             console.log(language);
             const response = await axios({
                 method: 'post',
-                url: `${process.env.REACT_APP_URI}/upload`,
+                url: `${process.env.REACT_APP_URI}upload`,
                 data: form,
                 headers: {
                     'Content-Type': `multipart/form-data; boundary=${form._boundary}`,
@@ -124,6 +124,7 @@ export default function SearchAppBar(props) {
               placeholder="Enter URL"
               inputProps={{ 'aria-label': 'search' }}
               onChange={handleUrlChange}
+              value={url}
             />
           </Search>
           <Button variant="outlined" onClick ={handleSubmit} style= {{color:"white"}}>Search</Button>
