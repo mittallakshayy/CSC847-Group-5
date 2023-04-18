@@ -115,6 +115,9 @@ export default function CustomizedMenus(props) {
         {props.article.translated_text_norwegian === undefined && <MenuItem onClick={handleClose} disableRipple>
           Norwegian
         </MenuItem>}
+        {props.article.translated_text_finnish === undefined && <MenuItem onClick={handleClose} disableRipple>
+          Finnish
+        </MenuItem>}
         {props.article.translated_text_icelandic === undefined && <MenuItem onClick={handleClose} disableRipple>
           Icelandic
         </MenuItem>}

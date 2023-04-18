@@ -180,8 +180,8 @@ useEffect( () => {
       </TabPanel>}  
       {article.translated_text_finnish !==undefined &&  <TabPanel value={value} index={10}>{article.translated_text_finnish}
       </TabPanel>}  
-      {article.translated_text_icelandic !==undefined &&  <TabPanel value={value} index={11}>{article.translated_text_icelandic}
-      </TabPanel>}  
+      {article.translated_text_icelandic !==undefined ? <TabPanel value={value} index={11}>{article.translated_text_icelandic}
+      </TabPanel>:<h1>Please add language</h1>}  
 
       
      
